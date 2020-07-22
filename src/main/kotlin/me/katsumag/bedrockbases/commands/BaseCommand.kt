@@ -23,8 +23,8 @@ class BaseCommand(private val plugin: BedrockBases) : CommandBase() {
     @Default
     fun help(sender: CommandSender) {
         sender.sendMessage("" +
-                "/base claim - generates a bedrock base if the player doesnt own one already and has access to permission\n" +
-                "/base home - teleports the player to their bedrock base if they have one or permission\n" +
+                "/base claim - generates a bedrock base if the player doesnt own one already\n" +
+                "/base home - teleports the player to their bedrock base\n" +
                 "/base info - show info of the base the player is stood in\n" +
                 "     - Base owners name,Claim date,Online status\n" +
                 "\n" +
@@ -60,12 +60,12 @@ class BaseCommand(private val plugin: BedrockBases) : CommandBase() {
     @SubCommand("home")
     @Permission("bedrockbase.home")
     fun home(sender: Player) {
-        if (! BaseManager.hasBase(sender)) {
+        if (! BaseManager.hasBase(sender.uniqueId)) {
             sender.sendMessage("&4You haven't claimed a base!".colour())
             return
         }
 
-        BaseManager.getBase(sender)?.getLocation()?.let { sender.teleport(it) }
+        BaseManager.getBase(sender.uniqueId)?.getLocation()?.let { sender.teleport(it) }
         sender.sendMessage("&2You have been teleported to your base!".colour())
 
     }
@@ -74,12 +74,12 @@ class BaseCommand(private val plugin: BedrockBases) : CommandBase() {
     @Permission("bedrockbase.info")
     fun info(sender: Player) {
 
-        if (! BaseManager.hasBase(sender)) {
+        if (! BaseManager.hasBase(sender.uniqueId)) {
             sender.sendMessage("&4You haven't claimed a base!".colour())
             return
         }
 
-        val base = BaseManager.getBase(sender)!!
+        val base = BaseManager.getWithinRange(sender.location)
 
         sender.sendMessage("This base belongs to ${base.getPlayer().name} \nThis base was claimed on: ${base.getClaimDate()}")
 
@@ -88,12 +88,18 @@ class BaseCommand(private val plugin: BedrockBases) : CommandBase() {
     @SubCommand("delete")
     @Permission("bedrockbase.admin")
     fun delete(sender: CommandSender, player: OfflinePlayer) {
-
+        BaseManager.getBase(player.uniqueId)?.let {
+            BaseManager.remove(it)
+            sender.sendMessage("&2${player.name}'s base has been deleted!".colour())
+        }
+        sender.sendMessage("Deleting ${player.name}'s base")
     }
 
     @SubCommand("list")
     @Permission("bedrockbase.admin")
     fun list(sender: CommandSender) {
-
+        BaseManager.BASE_LIST.forEach {
+            sender.sendMessage("Player: ${it.getPlayer()}\nUUID: ${it.getPlayerUUID()}\nLocation:${it.getLocation().x}, ${it.getLocation().y}, ${it.getLocation().z}\nClaim Date: ${it.getClaimDate()}")
+        }
     }
 }

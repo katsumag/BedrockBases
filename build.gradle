@@ -33,6 +33,7 @@ dependencies {
 shadowJar {
     relocate 'me.mattstudios.mf', 'me.katsumag.bedrockbases.mf'
     relocate 'me.mattstudios.mfgui', 'me.katsumag.bedrockbases.mfgui'
+    relocate 'kotlin', 'me.katsumag.bedrockbases.kotlin'
 }
 compileKotlin {
     kotlinOptions {

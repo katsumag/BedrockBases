@@ -1,7 +1,7 @@
 name: BedrockBases
 version: 1.0
 main: me.katsumag.bedrockbases.BedrockBases
-api-version: 1.15.2
-authors: [katsumag]
+api-version: 1.13
+author: katsumag
 website: https://katsumag.me
 depend: [FastAsyncWorldEdit]

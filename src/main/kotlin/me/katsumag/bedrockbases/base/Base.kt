@@ -9,20 +9,24 @@ import me.katsumag.bedrockbases.BedrockBases
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
-import java.io.File
+import java.io.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-class Base(private val plugin: BedrockBases, private val loc: Location, private val uuid: UUID) {
+class Base(private val plugin: BedrockBases, private val loc: Location, private val uuid: UUID) : Serializable {
 
-    private val dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")
+    companion object {
+        @JvmStatic
+        val serialVersionUID: Long = 836299282627
+    }
+
+   private val dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")
     private val claimDate = dtf.format(LocalDateTime.now())
-    private var editSession: EditSession?
-    private val undoContext = UndoContext()
+    val editSession = paste()
+    val undoContext = UndoContext()
 
     init {
-        editSession = paste()
         //editSession?.changeSet?.backwardIterator()?.forEachRemaining { action -> action.undo(undoContext) }
         BaseManager.register(this)
     }
@@ -47,4 +51,5 @@ class Base(private val plugin: BedrockBases, private val loc: Location, private 
         val file = File(plugin.dataFolder, "base.schematic")
         return ClipboardFormats.findByFile(file)?.load(file)?.paste(FaweAPI.getWorld(loc.world?.name), Vector(loc.x, loc.y, loc.z), true, true, null)
     }
+
 }

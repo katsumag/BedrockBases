@@ -1,15 +1,25 @@
 package me.katsumag.bedrockbases.base
 
+import me.katsumag.bedrockbases.BedrockBases
 import org.bukkit.Location
-import org.bukkit.entity.Player
+import org.bukkit.plugin.java.JavaPlugin
+import java.io.File
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.util.*
 import java.util.stream.Collectors
 
 object BaseManager {
 
-    private val BASE_LIST = mutableSetOf<Base>()
+    var BASE_LIST = mutableSetOf<Base>()
+    private val dataFile = File(JavaPlugin.getPlugin(BedrockBases::class.java).dataFolder, "data.dat")
 
-    fun hasBase(player: Player): Boolean {
-        BASE_LIST.forEach { if (it.getPlayer().uniqueId == player.uniqueId) return true }
+    init {
+        if (! dataFile.exists()) dataFile.mkdirs()
+    }
+
+    fun hasBase(player: UUID): Boolean {
+        BASE_LIST.forEach { if (it.getPlayer().uniqueId == player) return true }
         return false
     }
 
@@ -19,11 +29,12 @@ object BaseManager {
 
     fun remove(base: Base) {
         BASE_LIST.remove(base)
+        base.editSession?.changeSet?.backwardIterator()?.forEachRemaining { action -> action.undo(base.undoContext) }
     }
 
-    fun getBase(player: Player): Base? {
+    fun getBase(player: UUID): Base? {
         if (!hasBase(player)) return null;
-        return BASE_LIST.stream().filter { base -> base.getPlayerUUID() == player.uniqueId }.findFirst().get()
+        return BASE_LIST.stream().filter { base -> base.getPlayerUUID() == player }.findFirst().get()
     }
 
     fun collidesWithBase(loc: Location): Boolean {
@@ -36,6 +47,28 @@ object BaseManager {
             }
         }
         return false;
+    }
+
+    fun saveEditSessions() {
+        dataFile.outputStream().use { ObjectOutputStream(it).use { it.writeObject(BASE_LIST) } }
+    }
+
+    private fun getSavedEditSessions(): MutableSet<Base> {
+        return try {
+            dataFile.inputStream().use { ObjectInputStream(it).use { it.readObject() as MutableSet<Base> } }
+        } catch (exception: Exception) {
+            mutableSetOf()
+        }
+    }
+
+    fun loadEditSessions() {
+        getSavedEditSessions().let { BASE_LIST = it }
+    }
+
+    fun getWithinRange(loc: Location): Base {
+        return BASE_LIST.first {
+            loc.distance(it.getLocation()) < 20
+        }
     }
 
 }
