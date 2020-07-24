@@ -36,13 +36,19 @@ class BaseCommand(private val plugin: BedrockBases) : CommandBase() {
     @SubCommand("claim")
     @Permission("bedrockbase.claim")
     fun claim(sender: Player) {
+
+        if (BaseManager.hasBase(sender.uniqueId)) {
+            sender.sendMessage("&4You've already claimed a base!".colour())
+            return
+        }
+
         bukkitRunnable {
-            val xyz = rand.nextInt(Int.MAX_VALUE)
-            var location = Location(Bukkit.getWorld("BedrockBases"), xyz.toDouble(), xyz.toDouble(), xyz.toDouble())
-            while (BaseManager.collidesWithBase(location)) {
-                val xyz = rand.nextInt(Int.MAX_VALUE)
-                location = Location(Bukkit.getWorld("BedrockBases"), xyz.toDouble(), xyz.toDouble(), xyz.toDouble())
-            }
+
+            var location: Location
+
+            do {
+                location = Location(Bukkit.getWorld("BedrockBases"), rand.nextInt(256).toDouble(), 100.toDouble(), rand.nextInt(256).toDouble())
+            } while (BaseManager.collidesWithBase(location))
 
             val base = Base(plugin, location, sender.uniqueId)
 
@@ -99,7 +105,7 @@ class BaseCommand(private val plugin: BedrockBases) : CommandBase() {
     @Permission("bedrockbase.admin")
     fun list(sender: CommandSender) {
         BaseManager.BASE_LIST.forEach {
-            sender.sendMessage("Player: ${it.getPlayer()}\nUUID: ${it.getPlayerUUID()}\nLocation:${it.getLocation().x}, ${it.getLocation().y}, ${it.getLocation().z}\nClaim Date: ${it.getClaimDate()}")
+            sender.sendMessage("Player: ${it.getPlayer().name}\nUUID: ${it.getPlayerUUID()}\nLocation: ${it.getLocation().x}, ${it.getLocation().y}, ${it.getLocation().z}\nClaim Date: ${it.getClaimDate()}")
         }
     }
 }

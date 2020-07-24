@@ -4,4 +4,4 @@ main: me.katsumag.bedrockbases.BedrockBases
 api-version: 1.13
 author: katsumag
 website: https://katsumag.me
-depend: [FastAsyncWorldEdit]
+depend: [FastAsyncWorldEdit, WorldEdit]

@@ -18,14 +18,12 @@ class BedrockBases : JavaPlugin() {
         val commandManager = CommandManager(this)
 
         commandManager.parameterHandler.register(OfflinePlayer::class.java) {
-            TypeResult(Bukkit.getOfflinePlayer(UUID.fromString(it.toString())), it)
+            TypeResult(Bukkit.getOfflinePlayer(it.toString()), it)
         }
 
         commandManager.register(BaseCommand(this))
 
         server.getWorld("BedrockBases") ?: createWorld()
-
-        logger.severe("&4&lBedrockBases, Hello World!".colour())
 
         BaseManager.loadEditSessions()
 

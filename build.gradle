@@ -26,8 +26,7 @@ dependencies {
     implementation 'me.mattstudios.utils:matt-framework:1.4'
     implementation 'me.mattstudios.utils:matt-framework-gui:1.2.8'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compileOnly 'com.boydti:fawe-api:latest'
-    compileOnly 'com.sk89q.worldedit:worldedit-bukkit:+'
+    compileOnly "com.sk89q.worldedit:worldedit-bukkit:7.1.0"
 }
 
 shadowJar {

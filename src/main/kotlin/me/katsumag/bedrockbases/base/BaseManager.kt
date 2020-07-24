@@ -15,7 +15,7 @@ object BaseManager {
     private val dataFile = File(JavaPlugin.getPlugin(BedrockBases::class.java).dataFolder, "data.dat")
 
     init {
-        if (! dataFile.exists()) dataFile.mkdirs()
+        if (! dataFile.exists()) dataFile.mkdir()
     }
 
     fun hasBase(player: UUID): Boolean {
@@ -29,7 +29,7 @@ object BaseManager {
 
     fun remove(base: Base) {
         BASE_LIST.remove(base)
-        base.editSession?.changeSet?.backwardIterator()?.forEachRemaining { action -> action.undo(base.undoContext) }
+        base.editSession.changeSet?.backwardIterator()?.forEachRemaining { action -> action.undo(base.undoContext) }
     }
 
     fun getBase(player: UUID): Base? {
@@ -38,7 +38,7 @@ object BaseManager {
     }
 
     fun collidesWithBase(loc: Location): Boolean {
-        val locations = BASE_LIST.stream().map { location -> location.getLocation() }.collect(Collectors.toUnmodifiableSet())
+        val locations = BASE_LIST.map { it.getLocation() }
         locations.forEach { location ->
             run {
                 if (location.distance(loc) < 20) {

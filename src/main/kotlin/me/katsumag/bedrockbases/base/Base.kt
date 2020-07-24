@@ -1,11 +1,9 @@
 package me.katsumag.bedrockbases.base
 
-import com.boydti.fawe.FaweAPI
 import com.sk89q.worldedit.EditSession
-import com.sk89q.worldedit.Vector
-import com.sk89q.worldedit.extent.clipboard.ClipboardFormats
 import com.sk89q.worldedit.history.UndoContext
 import me.katsumag.bedrockbases.BedrockBases
+import me.katsumag.bedrockbases.loadAndPasteSchematic
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
@@ -47,9 +45,8 @@ class Base(private val plugin: BedrockBases, private val loc: Location, private 
         return claimDate
     }
 
-    private fun paste(): EditSession? {
-        val file = File(plugin.dataFolder, "base.schematic")
-        return ClipboardFormats.findByFile(file)?.load(file)?.paste(FaweAPI.getWorld(loc.world?.name), Vector(loc.x, loc.y, loc.z), true, true, null)
+    private fun paste(): EditSession {
+        return File(plugin.dataFolder, "BedrockBase.schem").loadAndPasteSchematic(loc)
     }
 
 }
