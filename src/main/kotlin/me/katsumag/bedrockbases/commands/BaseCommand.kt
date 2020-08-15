@@ -22,15 +22,7 @@ class BaseCommand(private val plugin: BedrockBases) : CommandBase() {
 
     @Default
     fun help(sender: CommandSender) {
-        sender.sendMessage("" +
-                "/base claim - generates a bedrock base if the player doesnt own one already\n" +
-                "/base home - teleports the player to their bedrock base\n" +
-                "/base info - show info of the base the player is stood in\n" +
-                "     - Base owners name,Claim date,Online status\n" +
-                "\n" +
-                "ADMIN COMMANDS\n" +
-                "/base delete [player] - Admin can remove a players base. \n" +
-                "/base list - List all claimed bases with details")
+        plugin.config.getString("help")?.let { sender.sendMessage(it.colour()) }
     }
 
     @SubCommand("claim")
@@ -38,7 +30,7 @@ class BaseCommand(private val plugin: BedrockBases) : CommandBase() {
     fun claim(sender: Player) {
 
         if (BaseManager.hasBase(sender.uniqueId)) {
-            sender.sendMessage("&4You've already claimed a base!".colour())
+            plugin.config.getString("base-already-claimed")?.let { sender.sendMessage(it.colour()) }
             return
         }
 
@@ -47,19 +39,19 @@ class BaseCommand(private val plugin: BedrockBases) : CommandBase() {
             var location: Location
 
             do {
-                location = Location(Bukkit.getWorld("BedrockBases"), rand.nextInt(256).toDouble(), 100.toDouble(), rand.nextInt(256).toDouble())
+                location = Location(Bukkit.getWorld("BedrockBases"), rand.nextInt(29000000).toDouble(), 100.toDouble(), rand.nextInt(29000000).toDouble())
             } while (BaseManager.collidesWithBase(location))
 
-            val base = Base(plugin, location, sender.uniqueId)
+            val base = Base(location.serialize(), sender.uniqueId)
 
             bukkitRunnable {
-                sender.teleport(base.getLocation())
-                sender.sendMessage("&2You have been teleported to your base!".colour())
+                sender.teleport(base.serializedLocation.toLocation())
+                plugin.config.getString("teleport")?.let { sender.sendMessage(it.colour()) }
             }.runTaskLater(plugin, 100)
 
         }.runTaskAsynchronously(plugin)
 
-        sender.sendMessage(("&2Base claimed successfully... teleporting soon").colour())
+        plugin.config.getString("base-claimed")?.let { sender.sendMessage(it.colour()) }
 
     }
 
@@ -67,12 +59,12 @@ class BaseCommand(private val plugin: BedrockBases) : CommandBase() {
     @Permission("bedrockbase.home")
     fun home(sender: Player) {
         if (! BaseManager.hasBase(sender.uniqueId)) {
-            sender.sendMessage("&4You haven't claimed a base!".colour())
+            plugin.config.getString("no-base")?.let { sender.sendMessage(it.colour()) }
             return
         }
 
-        BaseManager.getBase(sender.uniqueId)?.getLocation()?.let { sender.teleport(it) }
-        sender.sendMessage("&2You have been teleported to your base!".colour())
+        BaseManager.getBase(sender.uniqueId)?.serializedLocation?.let { sender.teleport(it.toLocation()) }
+        plugin.config.getString("teleport")?.let { sender.sendMessage(it.colour()) }
 
     }
 
@@ -81,13 +73,13 @@ class BaseCommand(private val plugin: BedrockBases) : CommandBase() {
     fun info(sender: Player) {
 
         if (! BaseManager.hasBase(sender.uniqueId)) {
-            sender.sendMessage("&4You haven't claimed a base!".colour())
+            plugin.config.getString("no-base")?.let { sender.sendMessage(it.colour()) }
             return
         }
 
         val base = BaseManager.getWithinRange(sender.location)
 
-        sender.sendMessage("This base belongs to ${base.getPlayer().name} \nThis base was claimed on: ${base.getClaimDate()}")
+        plugin.config.getString("info")?.let { sender.sendMessage(it.colour().replace("%player_name%", base.getPlayer().name ?: base.getPlayerUUID().toString()).replace("%claim_date%", base.getClaimDate())) }
 
     }
 
@@ -96,16 +88,38 @@ class BaseCommand(private val plugin: BedrockBases) : CommandBase() {
     fun delete(sender: CommandSender, player: OfflinePlayer) {
         BaseManager.getBase(player.uniqueId)?.let {
             BaseManager.remove(it)
-            sender.sendMessage("&2${player.name}'s base has been deleted!".colour())
+            plugin.config.getString("deleted")?.let { sender.sendMessage(it.colour().replace("%player_name%", player.name ?: player.uniqueId.toString())) }
         }
-        sender.sendMessage("Deleting ${player.name}'s base")
+        plugin.config.getString("deleting")?.let { sender.sendMessage(it.colour().replace("%player_name%", player.name ?: player.uniqueId.toString())) }
     }
 
     @SubCommand("list")
     @Permission("bedrockbase.admin")
     fun list(sender: CommandSender) {
-        BaseManager.BASE_LIST.forEach {
-            sender.sendMessage("Player: ${it.getPlayer().name}\nUUID: ${it.getPlayerUUID()}\nLocation: ${it.getLocation().x}, ${it.getLocation().y}, ${it.getLocation().z}\nClaim Date: ${it.getClaimDate()}")
+        BaseManager.baseList.forEach {base ->
+            plugin.config.getString("list")?.let {
+                sender.sendMessage(it.colour()
+                    .replace("%player_name%", base.getPlayer().name ?: "No name recorded")
+                    .replace("%player_uuid%", base.getPlayerUUID().toString())
+                        .replace("%location_x%", base.serializedLocation.toLocation().x.toString())
+                        .replace("%location_y%", base.serializedLocation.toLocation().y.toString())
+                        .replace("%location_z%", base.serializedLocation.toLocation().z.toString())
+                        .replace("%claim_date%", base.getClaimDate())
+            ) }
         }
     }
+
+    @SubCommand("tp")
+    @Permission("bedrockbase.admin")
+    fun tp(sender: Player, player: OfflinePlayer) {
+        if (! BaseManager.hasBase(player.uniqueId)) {
+            plugin.config.getString("no-base-tp")?.let { sender.sendMessage(it.colour().replace("%player_name%", player.name ?: player.uniqueId.toString())) }
+            return
+        }
+
+        plugin.config.getString("base-tp")?.let { sender.sendMessage(it.colour().replace("%player_name%", player.name ?: player.uniqueId.toString())) }
+        sender.teleport(BaseManager.getBase(player.uniqueId)!!.serializedLocation.toLocation())
+
+    }
+
 }

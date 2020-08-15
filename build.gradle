@@ -11,14 +11,8 @@ targetCompatibility = '1.8'
 
 repositories {
     mavenLocal()
-    maven {
-        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-    }
-
-    maven { url 'http://ci.athion.net/job/FastAsyncWorldEdit/ws/mvn/' }
-    maven {url 'https://maven.enginehub.org/repo/'}
-
     mavenCentral()
+    maven {url 'https://maven.enginehub.org/repo/'}
 }
 
 dependencies {

@@ -15,6 +15,9 @@ class BedrockBases : JavaPlugin() {
 
     override fun onEnable() {
         // Plugin startup logic
+
+        saveResource("config.yml", false)
+
         val commandManager = CommandManager(this)
 
         commandManager.parameterHandler.register(OfflinePlayer::class.java) {
@@ -25,8 +28,7 @@ class BedrockBases : JavaPlugin() {
 
         server.getWorld("BedrockBases") ?: createWorld()
 
-        BaseManager.loadEditSessions()
-
+        BaseManager.getAndLoadSavedEditSessions()
 
     }
 

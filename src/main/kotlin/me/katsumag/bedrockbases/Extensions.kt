@@ -2,6 +2,7 @@ package me.katsumag.bedrockbases
 
 import com.sk89q.worldedit.EditSession
 import com.sk89q.worldedit.WorldEdit
+import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldedit.bukkit.BukkitWorld
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy
@@ -10,6 +11,7 @@ import com.sk89q.worldedit.math.BlockVector3
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Location
+import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
 import java.io.File
 
@@ -44,4 +46,16 @@ fun File.loadAndPasteSchematic(source: Location): EditSession {
     Operations.completeLegacy(copy)
     session.flushSession()
     return session
+}
+
+fun BlockVector3.toLocation(): Location {
+    return Location(Bukkit.getWorld("BedrockBases"), x.toDouble(), y.toDouble(), z.toDouble())
+}
+
+fun Map<String, Any>.toLocation(): Location {
+    return Location.deserialize(this)
+}
+
+fun getPlugin(): BedrockBases {
+    return JavaPlugin.getPlugin(BedrockBases::class.java)
 }

@@ -1,0 +1,19 @@
+help: "/base claim - generates a bedrock base if the player doesnt own one already\n
+              /base home - teleports the player to their bedrock base\n
+              /base info - show info of the base the player is stood in\n
+                   - Base owners name,Claim date,Online status\n
+              \n
+              ADMIN COMMANDS\n
+              /base delete [player] - Admin can remove a players base. \n
+              /base list - List all claimed bases with details"
+base-already-claimed: "&4You've already claimed a base!"
+teleport: "&2You have been teleported to your base!"
+base-claimed: "&2Base claimed successfully... teleporting soon"
+no-base: "&4You haven't claimed a base!"
+info: "This base belongs to %player_name%
+       This base was claimed on: %claim_date%"
+deleting: "Deleting %player_name%'s base"
+deleted: "&2%player_name%'s base has been deleted!"
+list: "Player: %player_name%\nUUID: %player_uuid%\nLocation: %location_x%, %location_y%, %location_z%\nClaim Date: %claim_date%"
+no-base-tp: "&4%player_name% hasn't claimed a base yet!"
+base-tp: "&2Teleported to %player_name%'s base!"
